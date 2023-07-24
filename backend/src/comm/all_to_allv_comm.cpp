@@ -111,6 +111,15 @@ void comm_compaction_all_to_all(all_to_allv_buffer compute_buffer, int **recv_bu
     memset(*recv_buffer_offset_size, 0, RA_count * nprocs * sizeof(int));
     MPI_Alltoall(compute_buffer.local_compute_output_size_flat, RA_count, MPI_INT, *recv_buffer_offset_size, RA_count, MPI_INT, comm);
 
+//    if (rank == 1) {
+//    	std::cout << task_id << ": ";
+//		for (int i = 0; i < RA_count * nprocs; i++)
+//		{
+//			std::cout << (*recv_buffer_offset_size)[i] << " ";
+//		}
+//    	std::cout << "\n";
+//    }
+
     int outer_hash_buffer_size = 0;
     int *send_disp = new int[nprocs];
     int *recv_counts = new int[nprocs];
@@ -144,6 +153,10 @@ void comm_compaction_all_to_all(all_to_allv_buffer compute_buffer, int **recv_bu
         {
             memcpy(send_buffer + boffset, compute_buffer.local_compute_output[r][i].buffer, compute_buffer.local_compute_output[r][i].size);
             boffset = boffset + (compute_buffer.local_compute_output[r][i].size)/sizeof(u64);
+
+            if (rank == 0)
+            	compute_buffer.local_compute_output[r][i].print_buffer();
+
             compute_buffer.local_compute_output[r][i].vector_buffer_free();
 
             recv_counts[i] = recv_counts[i] + (*recv_buffer_offset_size)[i*RA_count + r];
@@ -154,8 +167,10 @@ void comm_compaction_all_to_all(all_to_allv_buffer compute_buffer, int **recv_bu
         outer_hash_buffer_size = outer_hash_buffer_size + recv_counts[i];
     }
 
+//    std::cout  << rank << " " << outer_hash_buffer_size << "\n";
+
     //if (rank == 0)
-    //    std::cout  <<local_min_count << "\t" << local_max_count << "\t" << sum0/nprocs << "\t";
+//        std::cout  <<local_min_count << "\t" << local_max_count << "\t" << sum0/nprocs << "\t";
 
     //assert(compute_buffer.local_compute_output_size_total == send_disp[nprocs - 1] + compute_buffer.cumulative_tuple_process_map[nprocs - 1]);
 

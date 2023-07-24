@@ -1,4 +1,5 @@
-
+(edge 1 2)
+(edge 2 3)
 
 [(path x y) <-- (edge x y)]
 

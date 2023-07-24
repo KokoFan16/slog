@@ -40,6 +40,8 @@
 #include "comm/intra_bucket_comm.h"
 #include "RAM/RA_tasks.h"
 #include "lie/lie.h"
+
+#include "RA/parallel_copy_aggregate.h"
 //#include "lie/lie_multi_task.h"
 
 

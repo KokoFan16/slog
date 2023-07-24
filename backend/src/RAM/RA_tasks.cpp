@@ -58,7 +58,7 @@ void RAM::set_comm(mpi_comm& mcomm)
 void RAM::print_all_relation()
 {
     for (u32 i=0; i < ram_relation_count; i++)
-        ram_relations[i]->print();
+    		ram_relations[i]->print();
 }
 
 
@@ -171,6 +171,72 @@ u64 RAM::intra_bucket_comm_execute()
             continue;
         }
 
+        /// No intra-bucket comm required for AGGREGATE
+        else if ((*it)->get_RA_type() == AGGREGATE)
+        {
+
+//        		std::cout << "AGGREGATE "  << std::endl;
+            /// ######################## KE #########################
+//        	if (rank == 1)
+
+
+//        	parallel_copy_aggregate* current_ra = (parallel_copy_aggregate*) *it;
+//        	relation* input0 = current_ra->get_agg_input0();
+//		relation* input1 = current_ra->get_agg_input1();
+//
+//		intra_bucket_comm(get_bucket_count(),input0->get_full(), input0->get_distinct_sub_bucket_rank_count(), input0->get_distinct_sub_bucket_rank(), input0->get_bucket_map(), input1->get_distinct_sub_bucket_rank_count(), input1->get_distinct_sub_bucket_rank(), input1->get_bucket_map(), &intra_bucket_buf_output_size[counter], &intra_bucket_buf_output[counter], mcomm.get_local_comm());
+//
+//		total_data_moved = total_data_moved + intra_bucket_buf_output_size[counter];
+//
+//		mcomm.set_local_comm(MPI_COMM_WORLD);
+//		int rank = mcomm.get_local_rank();
+
+//		if (rank == 1)
+//		{
+//			for (int i = 0; i < intra_bucket_buf_output_size[counter]; i++){
+//				u64 a = 0;
+//				std::memcpy(&a, &intra_bucket_buf_output[counter][i*8], 8);
+//				std::cout << a << "\n";
+//			}
+//		}
+
+
+
+//
+//		if (rank == 1) {
+//
+////			sintra_bucket_buf_output[counter]
+//		}
+//		if (rank == 1)
+//			print_all_relation();
+
+//            int nprocs = mcomm.get_local_nprocs();
+//        	if (rank == 0)
+//        	{
+//				parallel_copy_aggregate* current_ra = (parallel_copy_aggregate*) *it;
+//				relation* input0 = current_ra->get_agg_input0();
+//				// Buffer to store relation data
+//				vector_buffer *input_buffer = new vector_buffer[1];
+//				input_buffer[0].vector_buffer_create_empty();
+//
+//				// Puts btree data into a vector
+//				std::vector<u64> prefix = {};
+//				input0->get_full()[0].as_vector_buffer_recursive(&(input_buffer[0]), prefix);
+//				int size = (&input_buffer[0])->size / sizeof(u64);
+//				std::cout << "size: " << size << std::endl;
+//
+//				for(int i = 0; i < size; i++){
+//					u64 a = 0;
+//					std::memcpy(&a, &(&input_buffer[0])->buffer[i*8], sizeof(u64));
+//					std::cout << a  << " ";
+//				}
+//				std::cout << "\n";
+//        	}
+
+            counter++;
+            continue;
+        }
+
         else if ((*it)->get_RA_type() == NEGATION)
         {
             parallel_join_negate* current_ra = (parallel_join_negate*) *it;
@@ -250,6 +316,7 @@ u64 RAM::intra_bucket_comm_execute()
                 total_data_moved = total_data_moved + intra_bucket_buf_output_size[counter];
             }
         }
+
         counter++;
     }
 
@@ -495,6 +562,22 @@ u32 RAM::local_compute(int* offset)
             fact* current_ra = (fact*) *it;
             relation* fact_relation = current_ra->get_relation();
             std::vector<u64> data = current_ra->get_init_data();
+
+//            if (mcomm.get_local_rank()  == 0)
+//            {
+//            std::cout <<  fact_relation->get_debug_id() << std::endl;
+//
+//            for (int i = 0; i < get_bucket_count(); i++)
+//            {
+////            		std::cout <<  << std::endl;
+//            		for (int j = 0; j < fact_relation->get_sub_bucket_per_bucket_count()[i]; j++)
+//            		{
+//            			std::cout << i << " sub_bucket_per_bucket_count: " << fact_relation->get_sub_bucket_per_bucket_count()[i] << ", rank: " << j << ", " << fact_relation->get_sub_bucket_rank()[i][j] << std::endl;
+//            		}
+//            }
+//            }
+//            std::cout << fact_relation->get_sub_bucket_per_bucket_count() << ", " << fact_relation->get_sub_bucket_rank() << ", " << fact_relation->get_arity() << ", " << fact_relation->get_join_column_count() << ", " << fact_relation->get_is_canonical() << ", " << counter << std::endl;
+
             if (mcomm.get_rank()==0)
                 current_ra->init_with_fact(get_bucket_count(),
                                        fact_relation->get_sub_bucket_per_bucket_count(),
@@ -618,6 +701,36 @@ u32 RAM::local_compute(int* offset)
                                                                          &join_tuples);
                 total_join_tuples = total_join_tuples + join_tuples;
             }
+        }
+
+        /// ##################### kE ####################
+        else if ((*it)->get_RA_type() == AGGREGATE)
+        {
+        	parallel_copy_aggregate* current_ra = (parallel_copy_aggregate*) *it;
+        	relation* output_relation = current_ra->get_join_output();
+
+            relation* input0 = current_ra->get_agg_input0();
+            relation* input1 = current_ra->get_agg_input1();
+
+            current_ra->local_aggregate(get_bucket_count(), input0->get_full(), input1->get_full(), output_relation);
+
+//            current_ra->local_copy(get_bucket_count(),
+//									   input_relation->get_full(), input_relation->get_bucket_map(),
+//									   output_relation,
+//									   reorder_map_array,
+//									   input_relation->get_arity(),
+//									   input_relation->get_join_column_count(),
+//									   compute_buffer, counter);
+
+//            std::cout << "get_full: " << input0->get_bucket_count() << std::endl;
+//            current_ra->local_copy(get_bucket_count(),
+//                                   input_relation->get_full(), input_relation->get_bucket_map(),
+//                                   output_relation,
+//                                   reorder_map_array,
+//                                   input_relation->get_arity(),
+//                                   input_relation->get_join_column_count(),
+//                                   compute_buffer, counter);
+
         }
         counter++;
     }
@@ -1129,8 +1242,16 @@ void RAM::execute_in_batches(std::string name, int batch_size, std::vector<u32>&
 
 void RAM::execute_in_batches_comm_compaction(std::string name, int batch_size, std::vector<u32>& history, std::map<u64, u64>& intern_map, int* loop_counter, int task_id, std::string output_dir, bool all_to_all_record, int sloav_mode, int* rotate_index_array, int** send_indexes, int *sendb_num)
 {
+	/// ######################## KE #########################
+	mcomm.set_local_comm(MPI_COMM_WORLD);
+    int rank = mcomm.get_local_rank();
+    int nprocs = mcomm.get_local_nprocs();
+    /// #####################################################
+
     int inner_loop = 0;
     u32 RA_count = RA_list.size();
+
+//    std::cout  << task_id << ": " << std::endl;
 
     int *offset = new int[RA_count];
     for (u32 i =0; i < RA_count; i++)
@@ -1143,6 +1264,7 @@ void RAM::execute_in_batches_comm_compaction(std::string name, int batch_size, s
         //    std::cout << "--------------FIXED POINT ITERATION " << loop_count_tracker << "--------------" << std::endl;
 #endif
 
+    	/// implement aggregation code here
 
         intra_bucket_comm_execute();
 
@@ -1150,7 +1272,6 @@ void RAM::execute_in_batches_comm_compaction(std::string name, int batch_size, s
         while (local_join_status == false)
         {
             allocate_compute_buffers();
-
 
 
             local_join_status = local_compute(offset);
@@ -1196,7 +1317,6 @@ void RAM::execute_in_batches_comm_compaction(std::string name, int batch_size, s
 #endif
             inner_loop++;
         }
-
 
         local_insert_in_full();
 

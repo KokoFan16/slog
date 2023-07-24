@@ -57,16 +57,14 @@ public:
         buffer.width[ra_id] = arity;
         u64 reordered_cur_path[arity];
         for (int j =0; j < arity; j++)
-            reordered_cur_path[j] = data[j];
+        	reordered_cur_path[j] = data[j];
 
         uint64_t bucket_id = tuple_hash(reordered_cur_path, join_col_count) % buckets;
         uint64_t sub_bucket_id=0;
         if (canonical == false && arity != 0)
             sub_bucket_id = tuple_hash(reordered_cur_path + join_col_count, arity-join_col_count) % output_sub_bucket_count[bucket_id];
 
-
         int index = output_sub_bucket_rank[bucket_id][sub_bucket_id];
-
 
         buffer.local_compute_output_size_rel[ra_id] = buffer.local_compute_output_size_rel[ra_id] + buffer.width[ra_id];
         buffer.local_compute_output_size_total = buffer.local_compute_output_size_total + buffer.width[ra_id];
@@ -74,8 +72,6 @@ public:
         buffer.local_compute_output_size[ra_id][index] = buffer.local_compute_output_size[ra_id][index] + buffer.width[ra_id];
         buffer.cumulative_tuple_process_map[index] = buffer.cumulative_tuple_process_map[index] + buffer.width[ra_id];
         buffer.local_compute_output[ra_id][index].vector_buffer_append((const unsigned char*)reordered_cur_path, sizeof(u64)*buffer.width[ra_id]);
-
-        //std::cout << "Fact " << reordered_cur_path[0] << " " << reordered_cur_path[1] << std::endl;
 
         //u32** output_sub_bucket_rank = output->get_sub_bucket_rank();
 

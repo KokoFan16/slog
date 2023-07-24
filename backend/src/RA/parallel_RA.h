@@ -20,6 +20,13 @@ public:
     parallel_RA ()  {}
     virtual ~parallel_RA()    {}
 
+    /// #################### KE ####################
+    /// Aggregation functions
+    virtual relation* get_agg_input0() {return NULL;}
+    virtual relation* get_agg_input1() {return NULL;}
+    virtual int get_agg_input1_graph_type() {return 0;}
+    virtual relation* get_agg_output() {return NULL;}
+
 
     /// Join functions
     virtual relation* get_join_input0() {return NULL;}

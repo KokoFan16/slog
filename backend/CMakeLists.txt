@@ -18,7 +18,7 @@ set (tests_dir "${PROJECT_SOURCE_DIR}/tests")
 set (data_dir "${PROJECT_SOURCE_DIR}/data")
 set (utility_dir "${PROJECT_SOURCE_DIR}/utility")
 
-file (GLOB source_files_parallel_RA "${source_dir}/parallel_RA_inc.h" "${source_dir}/log/logger.cpp" "${source_dir}/hash/hash.h" "${source_dir}/buffer/vector_buffer.cpp" "${source_dir}/comm/comm.cpp" "${source_dir}/relation/google_btree_relation.cpp" "${source_dir}/relation/shmap_relation_exp.cpp" "${source_dir}/comm/all_to_all_comm.cpp" "${source_dir}/comm/all_to_allv_comm.cpp" "${source_dir}/IO/parallel_io.cpp" "${source_dir}/RA/parallel_join.cpp" "${source_dir}/RA/parallel_agg.cpp" "${source_dir}/comm/intra_bucket_comm.cpp" "${source_dir}/RA/parallel_copy.cpp" "${source_dir}/RA/parallel_copy_filter.cpp" "${source_dir}/RA/parallel_copy_generate.cpp" "${source_dir}/RA/parallel_RA.h" "${source_dir}/RA/parallel_acopy.cpp" "${source_dir}/relation/balanced_hash_relation.cpp" "${source_dir}/relation/relation_load_balancer.cpp" "${source_dir}/RAM/RA_tasks.cpp" "${source_dir}/lie/lie.cpp")
+file (GLOB source_files_parallel_RA "${source_dir}/parallel_RA_inc.h" "${source_dir}/log/logger.cpp" "${source_dir}/hash/hash.h" "${source_dir}/buffer/vector_buffer.cpp" "${source_dir}/comm/comm.cpp" "${source_dir}/relation/google_btree_relation.cpp" "${source_dir}/relation/shmap_relation_exp.cpp" "${source_dir}/comm/all_to_all_comm.cpp" "${source_dir}/comm/all_to_allv_comm.cpp" "${source_dir}/IO/parallel_io.cpp" "${source_dir}/RA/parallel_join.cpp" "${source_dir}/RA/parallel_agg.cpp" "${source_dir}/comm/intra_bucket_comm.cpp" "${source_dir}/RA/parallel_copy.cpp" "${source_dir}/RA/parallel_copy_filter.cpp" "${source_dir}/RA/parallel_copy_generate.cpp" "${source_dir}/RA/parallel_copy_aggregate.cpp" "${source_dir}/RA/parallel_RA.h" "${source_dir}/RA/parallel_acopy.cpp" "${source_dir}/relation/balanced_hash_relation.cpp" "${source_dir}/relation/relation_load_balancer.cpp" "${source_dir}/RAM/RA_tasks.cpp" "${source_dir}/lie/lie.cpp")
 file (GLOB source_files_ata "${tests_dir}/all_to_all_benchmark.cpp")
 file (GLOB source_files_tc "${tests_dir}/transitive_closure.cpp")
 #file (GLOB source_files_builtin "${tests_dir}/builtin.cpp")
@@ -34,6 +34,9 @@ file (GLOB source_files_wc110_9 "${tests_dir}/worstcase-110-terms-9-m.cpp")
 file (GLOB source_files_wc110_10 "${tests_dir}/worstcase-110-terms-10-m.cpp")
 file (GLOB source_files_fv "${tests_dir}/freevars.cpp")
 file (GLOB source_files_kcfa "${tests_dir}/kcfa-tiny.cpp")
+
+################## Ke ####################
+file (GLOB source_files_sum "${tests_dir}/sum.cpp")
 
 ADD_LIBRARY(parallel_RA "${source_files_parallel_RA}")
 
@@ -102,3 +105,8 @@ add_executable(bin_parser "${utility_dir}/binary_parser.cpp")
 add_executable(tsv_to_bin "${utility_dir}/tsv_to_bin.cpp")
 INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 TARGET_LINK_LIBRARIES(tsv_to_bin parallel_RA ${MPI_LIBRARIES})
+
+################## Ke ####################
+add_executable(sum ${source_files_sum})
+INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
+TARGET_LINK_LIBRARIES(sum parallel_RA ${MPI_LIBRARIES})

@@ -1,0 +1,11 @@
+(foo 1 2)
+(foo 2 4)
+
+(bar 1 2 5)
+(bar 2 4 3)
+(bar 2 4 4)
+
+[(foo x y)
+ (sum bar x y s)
+ -->
+ (sum-bar x y s)]

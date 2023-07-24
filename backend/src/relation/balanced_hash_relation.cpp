@@ -693,6 +693,7 @@ void relation::initialize_relation(mpi_comm& mcomm, std::map<u64, u64>& intern_m
     {
         sub_bucket_rank[b] = new u32[sub_bucket_per_bucket_count[b]];
         std::unordered_set<int> distinct_ranks;
+
         for (u64 x = 0; x < sub_bucket_per_bucket_count[b]; x++)
         {
             sub_bucket_rank[b][x] = rcount % nprocs;

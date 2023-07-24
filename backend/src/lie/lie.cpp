@@ -32,6 +32,7 @@ RAM* LIE::one_runnable_tasks()
     u32 counter = 0;
     for (u32 i=0; i < lie_sccs_count; i++)
     {
+//    	std::cout << i << ", " << lie_sccs[i] << "\n";
         if (lie_sccs[i] == NULL)
         {
             counter++;
@@ -247,10 +248,16 @@ bool LIE::execute ()
         lie_relations[i]->set_offset_io(offset_io);
         lie_relations[i]->initialize_relation(mcomm, intern_map);
 
+        lie_relations[i]->print();
+
 #if DEBUG_OUTPUT
-        //lie_relations[i]->print();
+//        lie_relations[i]->print();
 #endif
     }
+
+
+
+
 
     //if (mcomm.get_local_rank() == 0)
     //    std::cout << "Done initializing " << lie_relation_count <<  std::endl;
@@ -347,7 +354,7 @@ bool LIE::execute ()
     /// Running one task at a time
     while (executable_task != NULL)
     {
-        //std::cout << "Loop: " << c << std::endl;
+//        std::cout << "task id: " <<  executable_task->get_id() << std::endl;
         //c++;
         int loop_counter = 0;
 
@@ -371,6 +378,7 @@ bool LIE::execute ()
         //bool* scc_relation_status = executable_task->get_RAM_relations_status();;
         std::vector<bool> scc_relation_status = executable_task->get_RAM_relations_status();;
         u32 scc_relation_count = executable_task->get_ram_relation_count();
+
         if (restart_flag == false)
         {
             for (u32 i=0; i < scc_relation_count; i++)
@@ -419,9 +427,6 @@ bool LIE::execute ()
 
         /// if case is for rules (acopy and copy) that requires only one iteration
         /// else case is for join rules
-
-
-
 
         /// For SCCs that runs for only one iteration
         if (executable_task->get_iteration_count() == 1)
@@ -525,9 +530,9 @@ bool LIE::execute ()
         /// loads new runnable task
         executable_task = one_runnable_tasks();
     }
-    print_all_relation_size();
+//    print_all_relation_size();
 
-    write_final_checkpoint_dump();
+//    write_final_checkpoint_dump();
 
 
     delete[] rotate_index_array;

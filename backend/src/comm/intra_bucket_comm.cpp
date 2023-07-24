@@ -204,6 +204,16 @@ void intra_bucket_comm(u32 buckets,
         input_buffer_size[i] = (&input_buffer[i])->size / sizeof(u64);
         total_send_buffer_size = total_send_buffer_size + input_buffer_size[i];
 
+//        if (rank == 1) {
+//			for (int p = 0; p < input_buffer_size[i]; p++) {
+//				u64 a = 0;
+//				std::memcpy(&a, &(&input_buffer[i])->buffer[p*8], 8);
+//				std::cout << rank << ": " << i  <m< ", " << a << std::endl;
+//			}
+//        }
+
+//        std::cout << rank << ", " << i << ", " << input_distinct_sub_bucket_rank_count[i] << "\n";
+
         meta_buffer_size[i] = new u32[input_distinct_sub_bucket_rank_count[i]];
         memset(meta_buffer_size[i], 0, sizeof(u32) * input_distinct_sub_bucket_rank_count[i]);
 
